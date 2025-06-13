@@ -3,9 +3,9 @@ import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 
 export async function signup(req,res){
-   const {email,password,fulName} = req.body;
+   const {email, password, fullName} = req.body;
    try {
-    if(!email|| !password|| !fulName){
+    if(!email || !password || !fullName){
         return res.status(400).json({message:"All fields are required"});
     }
     if(password.length < 6){
@@ -22,9 +22,9 @@ export async function signup(req,res){
     const idx = Math.floor(Math.random()*100) +1;
     const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
-    const newUser = new User.create({
+    const newUser = await User.create({
         email,
-        fulName,
+        fullName,
         password,
         profilePic: randomAvatar,
     })
@@ -32,10 +32,10 @@ export async function signup(req,res){
     try {
         await upsertStreamUser({
             id: newUser._id.toString(),
-            name: newUser.fulName,
+            name: newUser.fullName,
             image: newUser.profilePic || "",
         })
-        console.log(`Stream user created for ${newUser.fulName}`)
+        console.log(`Stream user created for ${newUser.fullName}`)
     } catch (error) {
         console.log("Error creating stream user : " , error)
     }
@@ -103,8 +103,8 @@ export function logout(req,res){
 export async function onboard(req, res) {
     try {
         const userId = req.user._id;
-        const {fulName, bio, nativeLanguage, learningLanguage, location} = req.body;
-        if(!fulName || !bio || !nativeLanguage || !learningLanguage || !location){
+        const {fullName, bio, nativeLanguage, learningLanguage, location} = req.body;
+        if(!fullName || !bio || !nativeLanguage || !learningLanguage || !location){
             return res.status(400).json({
                 message: "All fields are required",
                 missingFields: [
@@ -125,10 +125,10 @@ export async function onboard(req, res) {
         try {
             await updateStreamUser({
                 id: updateUser._id.toString(),
-                name: updateUser.fulName,
+                name: updateUser.fullName,
                 image: updateUser.profilePic || "",
             })
-            console.log(`Stream user update after onboarding for ${updateUser.fulName}`)
+            console.log(`Stream user update after onboarding for ${updateUser.fullName}`)
         } catch (error) {
             console.log("Error updating Stream user during onboarding: "), error.message
         }
